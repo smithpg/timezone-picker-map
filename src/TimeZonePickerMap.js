@@ -5,47 +5,75 @@ import { useCombobox } from "downshift";
 
 const timeZoneNames = timeZones.map((tz) => tz.timezone);
 
-function getClassName(tz) {
+const timeZoneNameToPoints = timeZones.reduce((acc, tz) => {
+  if (acc[tz.timezone]) {
+    acc[tz.timezone].push(tz.points);
+  } else {
+    acc[tz.timezone] = [tz.points];
+  }
+
+  return acc;
+}, {});
+
+console.log(timeZoneNameToPoints);
+
+function createTimeZoneID(tz) {
+  if (tz === null) return "nothin";
+
   const name = `${tz.timezone}-${tz.country}-${tz.pin}`;
   return name;
 }
 
-const TimeZonePickerMap = ({ setTimeZone }) => {
+const TimeZonePickerMap = ({
+  setTimeZone,
+  selectedTimeZone,
+  colorConfig = {},
+}) => {
+  const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
+    selectedTimeZone
+  );
+  const {
+    backgroundColor = "transparent",
+    fillColor = "white",
+    strokeColor = "black",
+    hoverColor = "blue",
+    selectedColor = "green",
+    overlayStroke = "red",
+  } = colorConfig;
+
   const [hoveredZone, setHoveredZone] = React.useState(null);
   const style = {
-    height: 300,
-    width: 500,
+    height: 600,
+    width: 1000,
     // display: 'flex',
     // justifyContent: 'center',
     // alignItems: 'center',
     position: "absolute",
     top: "calc(50vh - 150)",
     left: "calc(50vw - 250)",
-    background: "white",
+    background: backgroundColor,
     padding: 10,
     boxShadow: "1px 1px 3px rgba(0,0,0,0.2)",
   };
 
   // Create the map
-  const map = React.useMemo(() => {
+  const polygons = React.useMemo(() => {
     const polygons = timeZones.map((timeZone, index) => (
       <polygon
         key={timeZone.timezone + index}
-        fill="white"
-        className={getClassName(timeZone)}
-        stroke="red"
+        fill={fillColor}
+        stroke={strokeColor}
+        strokeWidth={0.05}
         points={timeZone.points}
-        onMouseEnter={(e) => setHoveredZone(timeZone.timezone)}
+        onMouseEnter={(e) => setHoveredZone(timeZone)}
         onMouseOut={(e) => setHoveredZone(null)}
-        onClick={(e) => setTimeZone(timeZone.timezone)}
+        onClick={(e) => {
+          setSelectedTimeZoneObj(timeZone);
+          setTimeZone(timeZone.timezone);
+        }}
       ></polygon>
     ));
-
-    return (
-      <svg className="timezone-picker-map" viewBox="0 0 500 250">
-        {polygons}
-      </svg>
-    );
+    return polygons;
   }, []);
 
   const [matchedTimeZones, setMatchedTimeZones] = useState(timeZoneNames);
@@ -69,6 +97,41 @@ const TimeZonePickerMap = ({ setTimeZone }) => {
       );
     },
   });
+
+  const createOverlay = (pointStringArray, fillColor, strokeColor) =>
+    pointStringArray.map((pointString) => (
+      <polygon
+        fill={fillColor}
+        stroke={strokeColor}
+        strokeWidth={0.5}
+        style={{ zIndex: 999, pointerEvents: "none" }}
+        points={pointString}
+      ></polygon>
+    ));
+
+  const overlays = [
+    ...(hoveredZone
+      ? createOverlay(
+          timeZoneNameToPoints[hoveredZone.timezone],
+          hoverColor,
+          overlayStroke
+        )
+      : []),
+    ...(selectedTimeZoneObj
+      ? createOverlay(
+          timeZoneNameToPoints[selectedTimeZoneObj.timezone],
+          selectedColor,
+          overlayStroke
+        )
+      : []),
+  ];
+
+  console.log(overlays);
+  // if (!matchedTimeZones.length === timeZoneNames.length){
+  //   matchedTimeZones.map()
+  //   createOverlay
+  // }
+
   const comboboxStyles = { border: "1px solid black" };
   const menuStyles = { border: "1px solid black" };
   const select = (
@@ -103,16 +166,13 @@ const TimeZonePickerMap = ({ setTimeZone }) => {
 
   return (
     <div id="timezone-picker-map-target" style={style}>
-      {map}
+      <svg className="timezone-picker-map" viewBox="0 0 500 250">
+        {polygons}
+        {overlays}
+      </svg>
       {select}
-      <div>{hoveredZone}</div>
-      <style>
-        {`
-        .timezone-picker-map-target{
-          background-color: red;
-        }
-        `}
-      </style>
+      <div>{selectedTimeZone}</div>
+      <div>{hoveredZone && hoveredZone.timezone}</div>
     </div>
   );
 };

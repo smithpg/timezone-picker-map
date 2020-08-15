@@ -10,13 +10,16 @@ const Sandbox = () => {
   });
 
   const setTimezone = (tz) => {
-    setState({ selectedTimezone: tz });
+    setState({ selectedTimeZone: tz });
   };
   console.log(state);
   return (
     <div style={{ display: "flex" }}>
       <div style={{ width: "50vw", height: "100vh" }}>
-        <TimeZonePickerMap setTimeZone={setTimezone} />
+        <TimeZonePickerMap
+          selectedTimeZone={state.selectedTimeZone}
+          setTimeZone={setTimezone}
+        />
       </div>
       <div style={{ width: "50vw", height: "100vh" }}>
         ;laksdjf;laksjfd
