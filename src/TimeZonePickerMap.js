@@ -1,185 +1,228 @@
-import React, { useContext, useState } from "react";
-import timeZones from "./data/timezones.json";
+import React, { useState } from 'react';
+import Fuse from 'fuse.js';
+import timeZones from './data/timezones.json';
 
-import { useCombobox } from "downshift";
+import { useCombobox } from 'downshift';
+
+/*
+
+TODO/NOTE: there are some timezones with identical points:
+
+{
+    '243,75,243,75,243,75': ['Europe/Gibraltar', 'Africa/Ceuta'],
+    '162,100,162,100,162,100': [
+        'America/Anguilla',
+        'America/Lower_Princes',
+        'America/Marigot',
+    ],
+    '160,99,160,99,160,99': ['America/St_Thomas', 'America/Tortola'],
+};
+
+We need to decide what to show or select when the user mouses over these.
+
+*/
 
 const timeZoneNames = timeZones.map((tz) => tz.timezone);
 
-const timeZoneNameToPoints = timeZones.reduce((acc, tz) => {
-  if (acc[tz.timezone]) {
-    acc[tz.timezone].push(tz.points);
-  } else {
-    acc[tz.timezone] = [tz.points];
-  }
+const fuseOptions = {
+    includeMatches: true,
+    ignoreLocation: true,
+    keys: ['timezone', 'zonename'],
+};
+const fuse = new Fuse(timeZones, fuseOptions);
 
-  return acc;
+const timeZoneNameToPoints = timeZones.reduce((acc, tz) => {
+    if (acc[tz.timezone]) {
+        acc[tz.timezone].push(tz.points);
+    } else {
+        acc[tz.timezone] = [tz.points];
+    }
+
+    return acc;
 }, {});
 
-console.log(timeZoneNameToPoints);
-
 function createTimeZoneID(tz) {
-  if (tz === null) return "nothin";
+    if (tz === null) return 'nothin';
 
-  const name = `${tz.timezone}-${tz.country}-${tz.pin}`;
-  return name;
+    const name = `${tz.timezone}-${tz.country}-${tz.pin}`;
+    return name;
 }
 
 const TimeZonePickerMap = ({
-  setTimeZone,
-  selectedTimeZone,
-  colorConfig = {},
+    setTimeZone,
+    selectedTimeZone,
+    colorConfig = {},
 }) => {
-  const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
-    selectedTimeZone
-  );
-  const {
-    backgroundColor = "transparent",
-    fillColor = "white",
-    strokeColor = "black",
-    hoverColor = "blue",
-    selectedColor = "green",
-    overlayStroke = "red",
-  } = colorConfig;
+    const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
+        selectedTimeZone
+    );
+    const {
+        backgroundColor = 'transparent',
+        fillColor = 'white',
+        strokeColor = 'black',
+        hoverColor = 'blue',
+        selectedColor = 'green',
+        overlayStroke = 'red',
+    } = colorConfig;
 
-  const [hoveredZone, setHoveredZone] = React.useState(null);
-  const style = {
-    height: 600,
-    width: 1000,
-    // display: 'flex',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    position: "absolute",
-    top: "calc(50vh - 150)",
-    left: "calc(50vw - 250)",
-    background: backgroundColor,
-    padding: 10,
-    boxShadow: "1px 1px 3px rgba(0,0,0,0.2)",
-  };
+    const [hoveredZone, setHoveredZone] = React.useState(null);
+    const style = {
+        height: 600,
+        width: 1000,
+        position: 'absolute',
+        top: 'calc(50vh - 150)',
+        left: 'calc(50vw - 250)',
+        background: backgroundColor,
+        padding: 10,
+        boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
+    };
 
-  // Create the map
-  const polygons = React.useMemo(() => {
-    const polygons = timeZones.map((timeZone, index) => (
-      <polygon
-        key={timeZone.timezone + index}
-        fill={fillColor}
-        stroke={strokeColor}
-        strokeWidth={0.05}
-        points={timeZone.points}
-        onMouseEnter={(e) => setHoveredZone(timeZone)}
-        onMouseOut={(e) => setHoveredZone(null)}
-        onClick={(e) => {
-          setSelectedTimeZoneObj(timeZone);
-          setTimeZone(timeZone.timezone);
-        }}
-      ></polygon>
-    ));
-    return polygons;
-  }, []);
+    // Create the map
+    const polygons = React.useMemo(() => {
+        const polygons = timeZones.map((timeZone, index) => (
+            <polygon
+                key={timeZone.timezone + index}
+                fill={fillColor}
+                stroke={strokeColor}
+                strokeWidth={0.05}
+                points={timeZone.points}
+                onMouseEnter={(e) => setHoveredZone(timeZone)}
+                onMouseOut={(e) => setHoveredZone(null)}
+                onClick={(e) => {
+                    setSelectedTimeZoneObj(timeZone);
+                    setTimeZone(timeZone.timezone);
+                }}
+            />
+        ));
+        return polygons;
+    }, []);
 
-  const [matchedTimeZones, setMatchedTimeZones] = useState(timeZoneNames);
-  const {
-    isOpen,
-    getToggleButtonProps,
-    getLabelProps,
-    getMenuProps,
-    getInputProps,
-    getComboboxProps,
-    highlightedIndex,
-    getItemProps,
-  } = useCombobox({
-    items: matchedTimeZones,
-    onInputValueChange: ({ inputValue }) => {
-      // filter timezone using fuzzy matching
-      setMatchedTimeZones(
-        matchedTimeZones.filter((tz) =>
-          tz.toLowerCase().startsWith(inputValue.toLowerCase())
-        )
-      );
-    },
-  });
+    const [matchedTimeZones, setMatchedTimeZones] = useState(timeZones);
+    const {
+        isOpen,
+        getToggleButtonProps,
+        getLabelProps,
+        getMenuProps,
+        getInputProps,
+        getComboboxProps,
+        highlightedIndex,
+        getItemProps,
+    } = useCombobox({
+        items: matchedTimeZones,
+        onInputValueChange: ({ inputValue }) => {
+            // TODO: filter timezone using fuzzy matching
+            /*
+            PROBLEM: input lag due to rerendering whole map on input
 
-  const createOverlay = (pointStringArray, fillColor, strokeColor) =>
-    pointStringArray.map((pointString) => (
-      <polygon
-        fill={fillColor}
-        stroke={strokeColor}
-        strokeWidth={0.5}
-        style={{ zIndex: 999, pointerEvents: "none" }}
-        points={pointString}
-      ></polygon>
-    ));
+            possible alternative to combobox:
+            https://github.com/downshift-js/downshift
+                https://codesandbox.io/s/pyq3v4o3j
 
-  const overlays = [
-    ...(hoveredZone
-      ? createOverlay(
-          timeZoneNameToPoints[hoveredZone.timezone],
-          hoverColor,
-          overlayStroke
-        )
-      : []),
-    ...(selectedTimeZoneObj
-      ? createOverlay(
-          timeZoneNameToPoints[selectedTimeZoneObj.timezone],
-          selectedColor,
-          overlayStroke
-        )
-      : []),
-  ];
+            or, put combobox in separate component so matchedWhatever is its
+            state, not the whole map's, as recommended here:
+            https://stackoverflow.com/questions/50819260/react-input-onchange-lag
 
-  console.log(overlays);
-  // if (!matchedTimeZones.length === timeZoneNames.length){
-  //   matchedTimeZones.map()
-  //   createOverlay
-  // }
+             */
+            const fuzzyMatchedTimeZones = fuse.search(inputValue);
+            console.log(`JSON.stringify(fuzzyMatchedTimeZones): ${JSON.stringify(fuzzyMatchedTimeZones)}`);
+            setMatchedTimeZones(fuzzyMatchedTimeZones.map(match => match.item));
+        },
+    });
 
-  const comboboxStyles = { border: "1px solid black" };
-  const menuStyles = { border: "1px solid black" };
-  const select = (
-    <div>
-      <label {...getLabelProps()}>Choose an element:</label>
-      <div style={comboboxStyles} {...getComboboxProps()}>
-        <input {...getInputProps()} />
-        <button
-          type="button"
-          {...getToggleButtonProps()}
-          aria-label="toggle menu"
-        >
-          &#8595;
-        </button>
-      </div>
-      <ul {...getMenuProps()} style={menuStyles}>
-        {isOpen &&
-          matchedTimeZones.map((tz, index) => (
-            <li
-              style={
-                highlightedIndex === index ? { backgroundColor: "#bde4ff" } : {}
-              }
-              key={`${tz}${index}`}
-              {...getItemProps({ item: tz, index })}
-            >
-              {tz}
-            </li>
-          ))}
-      </ul>
-    </div>
-  );
+    const createOverlay = (
+        pointStringArray,
+        fillColor,
+        strokeColor,
+        overlayType
+    ) =>
+        pointStringArray.map((pointString) => (
+            <polygon
+                fill={fillColor}
+                stroke={strokeColor}
+                strokeWidth={0.5}
+                style={{ zIndex: 999, pointerEvents: 'none' }}
+                points={pointString}
+                key={`${overlayType}-${pointString}`}
+            />
+        ));
 
-  return (
-    <div id="timezone-picker-map-target" style={style}>
-      <svg className="timezone-picker-map" viewBox="0 0 500 250">
-        {polygons}
-        {overlays}
-      </svg>
-      {select}
-      <div>{selectedTimeZone}</div>
-      <div>{hoveredZone && hoveredZone.timezone}</div>
-    </div>
-  );
+    const overlays = [
+        ...(hoveredZone
+            ? createOverlay(
+                  timeZoneNameToPoints[hoveredZone.timezone],
+                  hoverColor,
+                  overlayStroke,
+                  'hovered'
+              )
+            : []),
+        ...(selectedTimeZoneObj
+            ? createOverlay(
+                  timeZoneNameToPoints[selectedTimeZoneObj.timezone],
+                  selectedColor,
+                  overlayStroke,
+                  'selected'
+              )
+            : []),
+    ];
+
+    // TODO: highlight matching zones as user types
+    // if (!matchedTimeZones.length === timeZoneNames.length){
+    //   matchedTimeZones.map()
+    //   createOverlay
+    // }
+
+    const comboboxStyles = { border: '1px solid black' };
+    const menuStyles = { border: '1px solid black' };
+    const select = (
+        <div>
+            <label {...getLabelProps()}>Choose an element:</label>
+            <div style={comboboxStyles} {...getComboboxProps()}>
+                <input {...getInputProps()} />
+                <button
+                    type="button"
+                    {...getToggleButtonProps()}
+                    aria-label="toggle menu"
+                >
+                    &#8595;
+                </button>
+            </div>
+            <ul {...getMenuProps()} style={menuStyles}>
+                {isOpen &&
+                    matchedTimeZones.map((tz, index) => (
+                        <li
+                            style={
+                                highlightedIndex === index
+                                    ? { backgroundColor: '#bde4ff' }
+                                    : {}
+                            }
+                            key={`${tz.timezone}${index}`}
+                            {...getItemProps({ item: tz, index })}
+                        >
+                            {`${tz.timezone} (${tz.zonename})`}
+                        </li>
+                    ))}
+            </ul>
+        </div>
+    );
+
+    return (
+        <div id="timezone-picker-map-target" style={style}>
+            <svg className="timezone-picker-map" viewBox="0 0 500 250">
+                {polygons}
+                {overlays}
+            </svg>
+            {select}
+            <div>{selectedTimeZone}</div>
+            <div>{hoveredZone && hoveredZone.timezone}</div>
+        </div>
+    );
 };
 
 export default TimeZonePickerMap;
 
 /*
+
+example of what one of the <polygon> elements should look like:
 
 <polygon
     points="241,118,240,119,240,117,238,116,238,115,239,114,239,113,
@@ -190,6 +233,6 @@ export default TimeZonePickerMap;
     data-pin="244,118"
     data-offset="0"
     data-zonename="GMT"
-></polygon>
+/>
 
 */
