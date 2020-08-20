@@ -68,7 +68,7 @@ const alternate = (array1, array2) => {
   return result;
 };
 
-const renderTextWithHighlights = (text, matchIndices) => {
+export const renderTextWithHighlights = (text, matchIndices) => {
   let nonMatching = [];
   let matching = [];
 
