@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
     "babel-jest": "^26.3.0",
     "downshift": "^6.0.3",
     "fuse.js": "^6.4.1",
