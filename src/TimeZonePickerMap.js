@@ -6,19 +6,8 @@ import { useCombobox } from "downshift";
 
 /*
 
-TODO/NOTE: there are some timezones with identical points:
-
-{
-    '243,75,243,75,243,75': ['Europe/Gibraltar', 'Africa/Ceuta'],
-    '162,100,162,100,162,100': [
-        'America/Anguilla',
-        'America/Lower_Princes',
-        'America/Marigot',
-    ],
-    '160,99,160,99,160,99': ['America/St_Thomas', 'America/Tortola'],
-};
-
-We need to decide what to show or select when the user mouses over these.
+TODO: decide what to show/select when user mouses over areas associated with
+multiple time zones. See README for details and example.
 
 */
 
