@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import timeZones from "./data/timezones.json";
 
 import { useCombobox } from "downshift";
-
+import { splitIntoBoundedGroups } from "./utils";
 /*
 
 TODO: decide what to show/select when user mouses over areas associated with
@@ -80,6 +80,11 @@ export const renderTextWithHighlights = (text, matchIndices) => {
   return finalHtml;
 };
 
+const timezonesAsMockFuseResults = timeZones.map((tz) => ({
+  item: tz,
+  matches: null,
+}));
+
 const TimeZonePickerMap = ({
   setTimeZone,
   selectedTimeZone,
@@ -129,7 +134,9 @@ const TimeZonePickerMap = ({
     return polygons;
   }, []);
 
-  const [matchedTimeZones, setMatchedTimeZones] = useState(timeZones);
+  const [matchedTimeZones, setMatchedTimeZones] = useState(
+    timezonesAsMockFuseResults
+  );
   const {
     isOpen,
     getToggleButtonProps,
@@ -152,7 +159,6 @@ const TimeZonePickerMap = ({
             state, not the whole map's, as recommended here:
             https://stackoverflow.com/questions/50819260/react-input-onchange-lag
              */
-      // debugger;
 
       const fuzzyMatchedTimeZones = fuse.search(inputValue);
       // console.log(JSON.stringify(fuzzyMatchedTimeZones));
@@ -201,7 +207,6 @@ const TimeZonePickerMap = ({
   //   matchedTimeZones.map()
   //   createOverlay
   // }
-
   const comboboxStyles = { border: "1px solid black" };
   const menuStyles = { border: "1px solid black" };
   const select = (
@@ -219,17 +224,59 @@ const TimeZonePickerMap = ({
       </div>
       <ul {...getMenuProps()} style={menuStyles}>
         {isOpen &&
-          matchedTimeZones.map((tz, index) => (
-            <li
-              style={
-                highlightedIndex === index ? { backgroundColor: "#bde4ff" } : {}
+          matchedTimeZones.map((matchedTimeZone, index) => {
+            const tz = matchedTimeZone.item;
+            // match > matches
+            //    { indices, value, key }
+
+            let timeZoneName = tz.timezone;
+            let zoneName = tz.zonename;
+
+            if (matchedTimeZone.matches !== null) {
+              // if there are matches...
+              for (let match of matchedTimeZone.matches) {
+                if (match.key === "timezone") {
+                  timeZoneName = splitIntoBoundedGroups(
+                    tz.timezone,
+                    match.indices
+                  ).map((substring, i) => {
+                    return substring.matches ? (
+                      <em key={substring.text + i} style={{ color: "red" }}>
+                        {substring.text}
+                      </em>
+                    ) : (
+                      <span key={substring.text + i}>{substring.text}</span>
+                    );
+                  });
+                } else {
+                  zoneName = splitIntoBoundedGroups(
+                    tz.zonename,
+                    match.indices
+                  ).map((substring, i) =>
+                    substring.matches ? (
+                      <em key={substring.text + i}>{substring.text}</em>
+                    ) : (
+                      <span key={substring.text + i}>{substring.text}</span>
+                    )
+                  );
+                }
               }
-              key={`${tz.timezone}${index}`}
-              {...getItemProps({ item: tz, index })}
-            >
-              {`${tz.timezone} (${tz.zonename})`}
-            </li>
-          ))}
+            }
+            return (
+              <li
+                style={
+                  highlightedIndex === index
+                    ? { backgroundColor: "#bde4ff" }
+                    : {}
+                }
+                key={`${tz.timezone}${index}`}
+                {...getItemProps({ item: tz, index })}
+              >
+                {timeZoneName}
+                {zoneName}
+              </li>
+            );
+          })}
       </ul>
     </div>
   );
