@@ -16,7 +16,8 @@
     "downshift": "^6.0.3",
     "fuse.js": "^6.4.1",
     "jest": "^26.4.2",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "webpack-cli": "^3.3.12"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
