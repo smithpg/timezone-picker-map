@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
     "test": "jest",
     "dev": "webpack-dev-server --open --hot --mode development"
   },
@@ -16,6 +17,7 @@
     "downshift": "^6.0.3",
     "fuse.js": "^6.4.1",
     "jest": "^26.4.2",
+    "lodash.debounce": "^4.0.8",
     "react-dom": "^16.13.1"
   },
   "devDependencies": {

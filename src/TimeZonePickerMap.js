@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Fuse from "fuse.js";
 import timeZones from "./data/timezones.json";
 
+import debounce from "lodash.debounce";
 import { useCombobox } from "downshift";
 import { splitIntoBoundedGroups } from "./utils";
 /*
@@ -11,12 +12,27 @@ multiple time zones. See README for details and example.
 
 */
 
-const timeZoneNames = timeZones.map((tz) => tz.timezone);
+// Spit timezone names into Region/Zone
+for (let i in timeZones) {
+  timeZones[i] = splitTimeZoneNameIntoRegionAndZone(timeZones[i]);
+}
 
+function splitTimeZoneNameIntoRegionAndZone(tz) {
+  const modifiedTz = Object.assign({}, tz);
+
+  const [region, zone] = tz.timezone.split("/");
+
+  Object.assign(modifiedTz, { region, zone });
+  return modifiedTz;
+}
+
+const timeZoneNames = timeZones.map((tz) => tz.timezone);
 const fuseOptions = {
   includeMatches: true,
   ignoreLocation: true,
-  keys: ["timezone", "zonename"],
+  threshold: 0.3,
+  // NB: do not be misled by the similarity of zone and zonename.
+  keys: ["region", "zone", "zonename"],
 };
 const fuse = new Fuse(timeZones, fuseOptions);
 
@@ -80,16 +96,25 @@ export const renderTextWithHighlights = (text, matchIndices) => {
   return finalHtml;
 };
 
-const timezonesAsMockFuseResults = timeZones.map((tz) => ({
-  item: tz,
-  matches: null,
-}));
+const timezonesAsMockFuseResults = timeZones.map((tz) => {
+  const modifiedTz = Object.assign({}, tz);
 
+  const [region, zone] = tz.timezone.split("/");
+
+  Object.assign(modifiedTz, { region, zone });
+
+  return {
+    item: modifiedTz,
+    matches: null,
+  };
+});
+debugger;
 const TimeZonePickerMap = ({
   setTimeZone,
   selectedTimeZone,
   colorConfig = {},
 }) => {
+  const [debouncing, setDebouncing] = React.useState(false);
   const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
     selectedTimeZone
   );
@@ -99,6 +124,7 @@ const TimeZonePickerMap = ({
     strokeColor = "black",
     hoverColor = "blue",
     selectedColor = "green",
+    matchedColor = "purple",
     overlayStroke = "red",
   } = colorConfig;
 
@@ -137,6 +163,14 @@ const TimeZonePickerMap = ({
   const [matchedTimeZones, setMatchedTimeZones] = useState(
     timezonesAsMockFuseResults
   );
+
+  const fuseUpdater = (searchValue) => {
+    const fuzzyMatches = fuse.search(searchValue);
+    setMatchedTimeZones(fuzzyMatches);
+  };
+
+  const debouncedUpdater = debounce(fuseUpdater, 200);
+
   const {
     isOpen,
     getToggleButtonProps,
@@ -160,9 +194,11 @@ const TimeZonePickerMap = ({
             https://stackoverflow.com/questions/50819260/react-input-onchange-lag
              */
 
-      const fuzzyMatchedTimeZones = fuse.search(inputValue);
-      // console.log(JSON.stringify(fuzzyMatchedTimeZones));
-      setMatchedTimeZones(fuzzyMatchedTimeZones);
+      if (debouncing) {
+        debouncedUpdater(inputValue);
+      } else {
+        fuseUpdater(inputValue);
+      }
     },
   });
 
@@ -171,8 +207,8 @@ const TimeZonePickerMap = ({
     fillColor,
     strokeColor,
     overlayType
-  ) =>
-    pointStringArray.map((pointString) => (
+  ) => {
+    return pointStringArray.map((pointString) => (
       <polygon
         fill={fillColor}
         stroke={strokeColor}
@@ -182,8 +218,9 @@ const TimeZonePickerMap = ({
         key={`${overlayType}-${pointString}`}
       />
     ));
+  };
 
-  const overlays = [
+  let overlays = [
     ...(hoveredZone
       ? createOverlay(
           timeZoneNameToPoints[hoveredZone.timezone],
@@ -201,6 +238,21 @@ const TimeZonePickerMap = ({
         )
       : []),
   ];
+
+  if (matchedTimeZones) {
+    overlays = matchedTimeZones
+      .map((matchedTz) =>
+        createOverlay(
+          [matchedTz.item.points],
+          matchedColor,
+          overlayStroke,
+          "matched"
+        )
+      )
+      .concat(overlays);
+  }
+
+  console.log(overlays);
 
   // TODO: highlight matching zones as user types
   // if (!matchedTimeZones.length === timeZoneNames.length){
@@ -270,10 +322,9 @@ const TimeZonePickerMap = ({
                     : {}
                 }
                 key={`${tz.timezone}${index}`}
-                {...getItemProps({ item: tz, index })}
+                {...getItemProps({ item: tz.timezone, index })}
               >
-                {timeZoneName}
-                {zoneName}
+                {timeZoneName} ({zoneName})
               </li>
             );
           })}
@@ -283,6 +334,9 @@ const TimeZonePickerMap = ({
 
   return (
     <div id="timezone-picker-map-target" style={style}>
+      <button onClick={() => setDebouncing((d) => !d)}>
+        toggle debounce (current value = {debouncing ? "true" : "false"})
+      </button>
       <svg className="timezone-picker-map" viewBox="0 0 500 250">
         {polygons}
         {overlays}
