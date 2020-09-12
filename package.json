@@ -8,6 +8,15 @@
     "test": "jest",
     "dev": "webpack-dev-server --open --hot --mode development"
   },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ]
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -34,14 +43,5 @@
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.10.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "jsx"
-    ],
-    "moduleDirectories": [
-      "node_modules"
-    ]
   }
 }

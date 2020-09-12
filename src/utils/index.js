@@ -8,6 +8,8 @@ export const alternate = (array1, array2) => {
     return result;
 };
 
+export const getDisplayName = timeZone => `${timeZone.timezone} (${timeZone.zonename})`;
+
 // TODO: change name to...something. maybe splitBy?
 export const splitIntoBoundedGroups = (text, matchRanges) => {
     const arr = [];
