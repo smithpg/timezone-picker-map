@@ -5,13 +5,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.[tj]sx?$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
-          },
         },
       },
       {
@@ -27,6 +24,9 @@ module.exports = {
         ],
       },
     ],
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
   },
   entry: "./src/index.js",
   output: {
