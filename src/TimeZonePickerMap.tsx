@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Fuse from 'fuse.js';
 import timeZones from './data/timezones.json';
+import type { TimeZone } from './types';
 
 import debounce from 'lodash.debounce';
 import { useCombobox } from 'downshift';
@@ -66,7 +67,7 @@ const spliceString = (targetString, startIndex, endIndex, replacement) => {
 const alternate = (array1, array2) => {
     const shorterLength = Math.min(array1.length, array2.length);
     let result = [];
-    for (i = 0; i < shorterLength; i++) {
+    for (let i = 0; i < shorterLength; i++) {
         result.push(array1[i], array2[i]);
     }
     result.push(...array1.slice(shorterLength), ...array2.slice(shorterLength));
@@ -113,6 +114,10 @@ const TimeZonePickerMap = ({
     setTimeZone,
     selectedTimeZone,
     colorConfig = {},
+}: {
+    setTimeZone: any;
+    selectedTimeZone: string;
+    colorConfig?: object;
 }) => {
     const [debouncing, setDebouncing] = React.useState(false);
     const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
@@ -140,9 +145,9 @@ const TimeZonePickerMap = ({
         boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
     };
 
-    const setTimeZoneAll = (timeZoneObject) => {
-        setSelectedTimeZoneObj(timeZoneObject);
-        setTimeZone(timeZoneObject.timezone);
+    const setTimeZoneAll = (timeZone: TimeZone) => {
+        setSelectedTimeZoneObj(timeZone);
+        setTimeZone(timeZone.timezone);
     };
 
     // Create the map
@@ -207,7 +212,9 @@ const TimeZonePickerMap = ({
         onSelectedItemChange: ({ selectedItem }) => {
             setTimeZoneAll(selectedItem.item);
         },
-        selectedItem: selectedTimeZoneObj ? getDisplayName(selectedTimeZoneObj) : '',
+        selectedItem: selectedTimeZoneObj
+            ? getDisplayName(selectedTimeZoneObj)
+            : '',
     });
 
     const createOverlay = (

@@ -1,0 +1,11 @@
+{
+    "noEmitOnError": true,
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "jsx": "preserve"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
+}

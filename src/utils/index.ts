@@ -1,3 +1,5 @@
+import { TimeZone } from '../types';
+
 export const alternate = (array1, array2) => {
     const shorterLength = Math.min(array1.length, array2.length);
     let result = [];
@@ -8,7 +10,8 @@ export const alternate = (array1, array2) => {
     return result;
 };
 
-export const getDisplayName = timeZone => `${timeZone.timezone} (${timeZone.zonename})`;
+export const getDisplayName = (timeZone: TimeZone) =>
+    `${timeZone.timezone} (${timeZone.zonename})`;
 
 // TODO: change name to...something. maybe splitBy?
 export const splitIntoBoundedGroups = (text, matchRanges) => {
