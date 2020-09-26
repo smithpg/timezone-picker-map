@@ -36,11 +36,11 @@ module.exports = {
     entry: './src/index.js',
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, './dist/'),
+        path: path.resolve(__dirname, './public/built/'),
     },
     plugins: [new webpack.HotModuleReplacementPlugin({ multistep: true })],
     devServer: {
-        contentBase: path.join(__dirname, 'dist/'),
+        contentBase: path.join(__dirname, 'public/'),
         watchContentBase: true,
         port: 9000,
         hot: true,
