@@ -11,9 +11,6 @@ module.exports = {
                     {
                         loader: 'babel-loader',
                     },
-                    {
-                        loader: 'ts-loader',
-                    },
                 ],
             },
             {
@@ -36,7 +33,8 @@ module.exports = {
     entry: './src/index.js',
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, './public/built/'),
+        path: path.resolve(__dirname, 'public/built/'),
+        publicPath: 'built/',
     },
     plugins: [new webpack.HotModuleReplacementPlugin({ multistep: true })],
     devServer: {

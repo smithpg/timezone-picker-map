@@ -5,6 +5,8 @@ export interface TimeZone {
     offset: number;
     points: string;
     zonename: string;
+    region?: string;
+    zone?: string;
 }
 
 // TODO: make this a class with a toString method? () => `{$timezone} (${zonename})`

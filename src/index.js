@@ -25,4 +25,4 @@ const Sandbox = () => {
     );
 };
 
-ReactDOM.render(<Sandbox />, document.querySelector('#root'));
+ReactDOM.render(<Sandbox />, mountNode);

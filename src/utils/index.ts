@@ -14,7 +14,10 @@ export const getDisplayName = (timeZone: TimeZone) =>
     `${timeZone.timezone} (${timeZone.zonename})`;
 
 // TODO: change name to...something. maybe splitBy?
-export const splitIntoBoundedGroups = (text, matchRanges) => {
+export const splitIntoBoundedGroups = (
+    text: string,
+    matchRanges: [number, number][]
+): { matches: boolean; text: string }[] => {
     const arr = [];
 
     if (matchRanges.length === 0) {
