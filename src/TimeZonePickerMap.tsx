@@ -214,7 +214,7 @@ const TimeZonePickerMap = ({
 		// selectedItem: selectedTimeZoneObj
 		//     ? getDisplayName(selectedTimeZoneObj)
 		//     : '',
-		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : undefined,
+		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
 	});
 
 	const createOverlay = (
