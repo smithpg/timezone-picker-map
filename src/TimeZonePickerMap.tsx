@@ -95,37 +95,79 @@ export const renderTextWithHighlights = (text, matchIndices) => {
 };
 
 interface ColorConfig {
-	backgroundColor?: string;
-	fillColor?: string;
-	strokeColor?: string;
-	hoverColor?: string;
-	selectedColor?: string;
-	matchedColor?: string;
-	overlayStroke?: string;
+	idle?: {
+		fill?: string;
+		stroke?: string;
+	};
+	hovered?: {
+		fill?: string;
+		stroke?: string;
+	};
+	matched?: {
+		fill?: string;
+		stroke?: string;
+	};
+	selected?: {
+		fill?: string;
+		stroke?: string;
+	};
+	background?: string;
 }
+
+const defaultColorConfig = {
+	idle: {
+		fill: 'red',
+		stroke: 'green',
+	},
+	hovered: {
+		fill: 'orange',
+		stroke: 'blue',
+	},
+	matched: {
+		fill: 'purple',
+		stroke: 'white',
+	},
+	selected: {
+		fill: 'green',
+		stroke: 'orange',
+	},
+	background: 'transparent',
+};
+
 type TimeZonePickerMapProps = {
 	setTimeZone: (timeZone: string) => void;
 	selectedTimeZone: any;
-	colorConfig?: any;
+	colorConfig?: ColorConfig;
 };
 const TimeZonePickerMap = ({
 	setTimeZone,
 	selectedTimeZone,
 	colorConfig = {},
 }: TimeZonePickerMapProps) => {
-	const [debouncing, setDebouncing] = React.useState(false);
+	const [debouncing, setDebouncing] = React.useState(true);
 	const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
 		selectedTimeZone
 	);
-	const {
-		backgroundColor = 'transparent',
-		fillColor = 'white',
-		strokeColor = 'black',
-		hoverColor = 'blue',
-		selectedColor = 'green',
-		matchedColor = 'purple',
-		overlayStroke = 'red',
-	} = colorConfig;
+
+	// Initialize color config
+	for (let key in defaultColorConfig) {
+		if (colorConfig[key]) {
+			if (!(colorConfig[key] instanceof Object)) {
+				continue;
+			}
+
+			for (let keyInner in defaultColorConfig[key]) {
+				if (!colorConfig[key][keyInner]) {
+					colorConfig[key][keyInner] =
+						defaultColorConfig[key][keyInner];
+				}
+			}
+		} else {
+			colorConfig[key] = defaultColorConfig[key];
+		}
+	}
+
+	console.dir(colorConfig);
 
 	const [hoveredZone, setHoveredZone] = React.useState(null);
 	const style: CSS.Properties = {
@@ -133,14 +175,14 @@ const TimeZonePickerMap = ({
 		width: '1000',
 		top: 'calc(50vh - 150)',
 		left: 'calc(50vw - 250)',
-		background: backgroundColor,
+		background: colorConfig.background,
 		padding: '10',
 		boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
 	};
 
 	const setTimeZoneAll = (timeZone: TimeZone) => {
 		setSelectedTimeZoneObj(timeZone);
-		setTimeZone(timeZone.timezone);
+		setTimeZone(timeZone.timezone); // todo: does parent component want more than `timezone` field?
 	};
 
 	// Create the map
@@ -148,8 +190,8 @@ const TimeZonePickerMap = ({
 		const polygons = timeZones.map((timeZone, index) => (
 			<polygon
 				key={timeZone.timezone + index}
-				fill={fillColor}
-				stroke={strokeColor}
+				fill={colorConfig.idle.fill}
+				stroke={colorConfig.idle.stroke}
 				strokeWidth={0.05}
 				points={timeZone.points}
 				onMouseEnter={(e) => setHoveredZone(timeZone)}
@@ -190,18 +232,9 @@ const TimeZonePickerMap = ({
 		getItemProps,
 	} = useCombobox({
 		items: matchedTimeZones,
+		itemToString: (item: TimeZone): string =>
+			item ? getDisplayName(item) : '',
 		onInputValueChange: ({ inputValue }) => {
-			// TODO: filter timezone using fuzzy matching
-			/*
-            possible alternative to combobox:
-            https://github.com/downshift-js/downshift
-                https://codesandbox.io/s/pyq3v4o3j
-
-            or, put combobox in separate component so matchedWhatever is its
-            state, not the whole map's, as recommended here:
-            https://stackoverflow.com/questions/50819260/react-input-onchange-lag
-             */
-
 			if (debouncing) {
 				debouncedUpdater(inputValue);
 			} else {
@@ -211,9 +244,6 @@ const TimeZonePickerMap = ({
 		onSelectedItemChange: ({ selectedItem }) => {
 			setTimeZoneAll(selectedItem.item);
 		},
-		// selectedItem: selectedTimeZoneObj
-		//     ? getDisplayName(selectedTimeZoneObj)
-		//     : '',
 		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
 	});
 
@@ -239,16 +269,16 @@ const TimeZonePickerMap = ({
 		...(hoveredZone
 			? createOverlay(
 					timeZoneNameToPoints[hoveredZone.timezone],
-					hoverColor,
-					overlayStroke,
+					colorConfig.hovered.fill,
+					colorConfig.hovered.stroke,
 					'hovered'
 			  )
 			: []),
 		...(selectedTimeZoneObj
 			? createOverlay(
 					timeZoneNameToPoints[selectedTimeZoneObj.timezone],
-					selectedColor,
-					overlayStroke,
+					colorConfig.selected.fill,
+					colorConfig.selected.stroke,
 					'selected'
 			  )
 			: []),
@@ -259,21 +289,17 @@ const TimeZonePickerMap = ({
 			.map((matchedTz) =>
 				createOverlay(
 					[matchedTz.item.points],
-					matchedColor,
-					overlayStroke,
+					colorConfig.matched.fill,
+					colorConfig.matched.stroke,
 					'matched'
 				)
 			)
 			.concat(overlays);
 	}
 
-	// TODO: highlight matching zones as user types
-	// if (!matchedTimeZones.length === timeZoneNames.length){
-	//   matchedTimeZones.map()
-	//   createOverlay
-	// }
 	const comboboxStyles = { border: '1px solid black' };
 	const menuStyles = { border: '1px solid black' };
+
 	const select = (
 		<div>
 			<label {...getLabelProps()}>Choose an element:</label>

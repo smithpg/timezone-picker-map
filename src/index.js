@@ -13,12 +13,32 @@ const Sandbox = () => {
 		setState({ selectedTimeZone: tz });
 	};
 
+	const colorConfig = {
+		default: {
+			fill: 'red',
+			stroke: 'green',
+		},
+		hovered: {
+			stroke: 'green',
+		},
+		matched: {
+			fill: 'red',
+			stroke: 'green',
+		},
+		selected: {
+			fill: 'red',
+			stroke: 'green',
+		},
+		background: 'red',
+	};
+
 	return (
 		<div style={{ display: 'flex' }}>
 			<div style={{ width: '50vw', height: '100vh' }}>
 				<TimeZonePickerMap
 					selectedTimeZone={state.selectedTimeZone}
 					setTimeZone={setTimezone}
+					colorConfig={colorConfig}
 				/>
 			</div>
 		</div>
