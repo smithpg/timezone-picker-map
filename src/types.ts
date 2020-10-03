@@ -1,12 +1,12 @@
 export interface TimeZone {
-    timezone: string;
-    country: string;
-    pin: string;
-    offset: number;
-    points: string;
-    zonename: string;
-    region?: string;
-    zone?: string;
+	timezone: string;
+	country: string;
+	pin: string;
+	offset: number;
+	points: string;
+	zonename: string;
+	region?: string;
+	zone?: string;
 }
 
 // TODO: make this a class with a toString method? () => `{$timezone} (${zonename})`

@@ -1,19 +1,19 @@
 // .babelrc
 {
-    "presets": [
-        [
-            "@babel/preset-env",
-            {
-                "targets": "defaults"
-            }
-        ],
-        "@babel/preset-react",
-        "@babel/preset-typescript"
-    ],
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": "defaults"
+			}
+		],
+		"@babel/preset-react",
+		"@babel/preset-typescript"
+	],
 
-    "env": {
-        "test": {
-            "plugins": ["@babel/transform-modules-commonjs"]
-        }
-    }
+	"env": {
+		"test": {
+			"plugins": ["@babel/transform-modules-commonjs"]
+		}
+	}
 }
