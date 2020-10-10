@@ -147,8 +147,6 @@ const TimeZonePickerMap = ({
 		}
 	}
 
-	console.dir(colorConfig);
-
 	const [hoveredZone, setHoveredZone] = React.useState(null);
 	const style: CSS.Properties = {
 		height: '35em',
@@ -221,8 +219,13 @@ const TimeZonePickerMap = ({
 		onSelectedItemChange: ({ selectedItem }) => {
 			setTimeZoneAll(selectedItem.item);
 		},
-		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
-	});
+        selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
+        onHighlightedIndexChange: ({ highlightedIndex }) => {
+            if (highlightedIndex !== -1) {
+                setHoveredZone(timeZones[highlightedIndex]);
+            }
+        }
+    });
 
 	const createOverlay = (
 		pointStringArray,
