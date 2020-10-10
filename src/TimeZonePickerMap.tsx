@@ -219,13 +219,13 @@ const TimeZonePickerMap = ({
 		onSelectedItemChange: ({ selectedItem }) => {
 			setTimeZoneAll(selectedItem.item);
 		},
-        selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
-        onHighlightedIndexChange: ({ highlightedIndex }) => {
-            if (highlightedIndex !== -1) {
-                setHoveredZone(timeZones[highlightedIndex]);
-            }
-        }
-    });
+		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
+		onHighlightedIndexChange: ({ highlightedIndex }) => {
+			if (highlightedIndex !== -1) {
+				setHoveredZone(timeZones[highlightedIndex]);
+			}
+		},
+	});
 
 	const createOverlay = (
 		pointStringArray,
@@ -277,14 +277,14 @@ const TimeZonePickerMap = ({
 			.concat(overlays);
 	}
 
-	const comboboxStyles = { border: '1px solid black' };
+	const comboboxStyles = { border: '1px solid black', width: "fit-content" };
 	const menuStyles = { border: '1px solid black' };
 
 	const select = (
 		<div>
 			<label {...getLabelProps()}>Choose an element:</label>
 			<div style={comboboxStyles} {...getComboboxProps()}>
-				<input {...getInputProps()} />
+				<input {...getInputProps()} style={{ width: 300 }} />
 				<button
 					type="button"
 					{...getToggleButtonProps()}
