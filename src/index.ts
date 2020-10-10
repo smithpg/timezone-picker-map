@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import TimeZonePickerMap from './TimeZonePickerMap';
+import type { ColorConfig } from './types';
 
 const mountNode = document.querySelector('#root');
 
@@ -13,23 +14,23 @@ const Sandbox = () => {
 		setState({ selectedTimeZone: tz });
 	};
 
-	const colorConfig = {
-		default: {
-			fill: 'red',
-			stroke: 'green',
+	const colorConfig: ColorConfig = {
+		idle: {
+			fill: 'gray',
+			stroke: 'black',
 		},
 		hovered: {
-			stroke: 'green',
+			stroke: 'yellow',
 		},
 		matched: {
-			fill: 'red',
-			stroke: 'green',
+			fill: 'blue',
+			stroke: 'purple',
 		},
 		selected: {
-			fill: 'red',
-			stroke: 'green',
+			fill: 'green',
+			stroke: 'purple',
 		},
-		background: 'red',
+		background: 'aquamarine',
 	};
 
 	return (
@@ -38,7 +39,7 @@ const Sandbox = () => {
 				<TimeZonePickerMap
 					selectedTimeZone={state.selectedTimeZone}
 					setTimeZone={setTimezone}
-					colorConfig={colorConfig}
+					// colorConfig={colorConfig}
 				/>
 			</div>
 		</div>

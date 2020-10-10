@@ -9,6 +9,26 @@ export interface TimeZone {
 	zone?: string;
 }
 
+export interface ColorConfig {
+	idle?: {
+		fill?: string;
+		stroke?: string;
+	};
+	hovered?: {
+		fill?: string;
+		stroke?: string;
+	};
+	matched?: {
+		fill?: string;
+		stroke?: string;
+	};
+	selected?: {
+		fill?: string;
+		stroke?: string;
+	};
+	background?: string;
+}
+
 // TODO: make this a class with a toString method? () => `{$timezone} (${zonename})`
 
 // TODO: rework timezones.json so we can make these types more explicit/specific

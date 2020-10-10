@@ -2,7 +2,7 @@ import CSS from 'csstype';
 import React, { useState, CSSProperties } from 'react';
 import Fuse from 'fuse.js';
 import timeZones from './data/timezones.json';
-import type { TimeZone } from './types';
+import type { ColorConfig, TimeZone } from './types';
 
 import debounce from 'lodash.debounce';
 import { useCombobox } from 'downshift';
@@ -94,44 +94,24 @@ export const renderTextWithHighlights = (text, matchIndices) => {
 	return finalHtml;
 };
 
-interface ColorConfig {
-	idle?: {
-		fill?: string;
-		stroke?: string;
-	};
-	hovered?: {
-		fill?: string;
-		stroke?: string;
-	};
-	matched?: {
-		fill?: string;
-		stroke?: string;
-	};
-	selected?: {
-		fill?: string;
-		stroke?: string;
-	};
-	background?: string;
-}
-
-const defaultColorConfig = {
+const defaultColorConfig: ColorConfig = {
 	idle: {
-		fill: 'red',
-		stroke: 'green',
+		fill: 'tan',
+		stroke: 'black',
 	},
 	hovered: {
 		fill: 'orange',
-		stroke: 'blue',
+		stroke: 'black',
 	},
 	matched: {
-		fill: 'purple',
+		fill: 'yellow',
 		stroke: 'white',
 	},
 	selected: {
 		fill: 'green',
 		stroke: 'orange',
 	},
-	background: 'transparent',
+	background: 'aquamarine',
 };
 
 type TimeZonePickerMapProps = {
