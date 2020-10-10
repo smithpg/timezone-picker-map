@@ -222,7 +222,7 @@ const TimeZonePickerMap = ({
 		selectedItem: selectedTimeZoneObj ? selectedTimeZoneObj : null,
 		onHighlightedIndexChange: ({ highlightedIndex }) => {
 			if (highlightedIndex !== -1) {
-				setHoveredZone(timeZones[highlightedIndex]);
+				setHoveredZone(matchedTimeZones[highlightedIndex].item);
 			}
 		},
 	});
