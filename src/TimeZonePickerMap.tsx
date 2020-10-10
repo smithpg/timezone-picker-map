@@ -151,12 +151,9 @@ const TimeZonePickerMap = ({
 
 	const [hoveredZone, setHoveredZone] = React.useState(null);
 	const style: CSS.Properties = {
-		height: '600',
-		width: '1000',
-		top: 'calc(50vh - 150)',
-		left: 'calc(50vw - 250)',
+		height: '35em',
+		width: '60em',
 		background: colorConfig.background,
-		padding: '10',
 		boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
 	};
 
