@@ -30,7 +30,7 @@ module.exports = {
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
 	},
-	entry: './src/index.js',
+	entry: './src/index.tsx',
 	output: {
 		filename: 'main.js',
 		path: path.resolve(__dirname, 'public/built/'),
