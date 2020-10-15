@@ -264,7 +264,7 @@ const TimeZonePickerMap = ({
 			: []),
 	];
 
-	if (matchedTimeZones) {
+	if (matchedTimeZones.length !== timeZonesAsMockFuseResults.length) {
 		overlays = matchedTimeZones
 			.map((matchedTz) =>
 				createOverlay(
@@ -277,7 +277,7 @@ const TimeZonePickerMap = ({
 			.concat(overlays);
 	}
 
-	const comboboxStyles = { border: '1px solid black', width: "fit-content" };
+	const comboboxStyles = { border: '1px solid black', width: 'fit-content' };
 	const menuStyles = { border: '1px solid black' };
 
 	const select = (
