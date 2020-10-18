@@ -1,2 +1,6 @@
+# library
+dist/
+
+# sample app
 public/built/
 node_modules/
