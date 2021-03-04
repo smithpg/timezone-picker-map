@@ -124,7 +124,6 @@ const TimeZonePickerMap = ({
 	selectedTimeZone,
 	colorConfig = {},
 }: TimeZonePickerMapProps) => {
-	const [debouncing, setDebouncing] = React.useState(true);
 	const [selectedTimeZoneObj, setSelectedTimeZoneObj] = React.useState(
 		selectedTimeZone
 	);
@@ -189,12 +188,11 @@ const TimeZonePickerMap = ({
 		any
 	] = useState(timeZonesAsMockFuseResults);
 
-	const fuseUpdater = (searchValue) => {
-		const fuzzyMatches = fuse.search(searchValue);
-		setMatchedTimeZones(fuzzyMatches);
-	};
-
-	const debouncedUpdater = debounce(fuseUpdater, 200);
+	const fuseUpdater = debounce((searchValue) => {
+		setMatchedTimeZones(
+			searchValue ? fuse.search(searchValue) : timeZonesAsMockFuseResults
+		);
+	}, 200);
 
 	const {
 		isOpen,
@@ -210,11 +208,7 @@ const TimeZonePickerMap = ({
 		itemToString: (item: TimeZone): string =>
 			item ? getDisplayName(item) : '',
 		onInputValueChange: ({ inputValue }) => {
-			if (debouncing) {
-				debouncedUpdater(inputValue);
-			} else {
-				fuseUpdater(inputValue);
-			}
+			fuseUpdater(inputValue);
 		},
 		onSelectedItemChange: ({ selectedItem }) => {
 			setTimeZoneAll(selectedItem.item);
@@ -362,10 +356,6 @@ const TimeZonePickerMap = ({
 
 	return (
 		<div id="timezone-picker-map-target" style={style}>
-			<button onClick={() => setDebouncing((d) => !d)}>
-				toggle debounce (current value = {debouncing ? 'true' : 'false'}
-				)
-			</button>
 			<svg className="timezone-picker-map" viewBox="0 0 500 250">
 				{polygons}
 				{overlays}
