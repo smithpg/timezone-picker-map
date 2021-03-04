@@ -2,7 +2,7 @@
 	"name": "timezone-picker-map",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.tsx",
+	"main": "dist/main.js",
 	"types": "types.ts",
 	"scripts": {
 		"build": "webpack",
@@ -29,11 +29,15 @@
 		"csstype": "^3.0.3",
 		"downshift": "^6.0.3",
 		"fuse.js": "^6.4.1",
-		"jest": "^26.4.2",
-		"lodash.debounce": "^4.0.8",
-		"react-dom": "^16.13.1"
+		"lodash.debounce": "^4.0.8"
+	},
+	"peerDependencies": {
+		"react-dom": "^16.13.1",
+		"react": "^16.13.1"
 	},
 	"devDependencies": {
+		"react-dom": "^16.13.1",
+		"jest": "^26.4.2",
 		"@babel/cli": "^7.8.4",
 		"@babel/core": "^7.11.4",
 		"@babel/polyfill": "^7.8.7",
